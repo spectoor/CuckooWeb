@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Variables
+
+=======
 if [ $EUID -nq 0 ];then
 	echo YOU HAVE TO BE ROOT TO RUN THIS SCRIPT
 	exit 1;
@@ -14,6 +17,11 @@ if [ ! -e $CUCKOO_ROOT/cuckoo.py ];then
 	exit 2;
 fi
 APACHE_ROOT=/var/www/cuckoo_web
+MYSQL_USER=mysql_user
+MYSQL_PASS=mysql_pass
+MYSQL_DB=database_name
+
+=======
 DIR=$(pwd)
 
 # Dependencies
@@ -61,8 +69,18 @@ if [ $0 -nq 0 ];then
 fi
 cd CuckooWeb
 cp -R cuckoo_web $APACHE_ROOT
-ln -s $CUCKOO_ROOT/storage/analyses/ $APACHE_ROOT/analyses
 chown -R www-data $APACHE_ROOT
+sed -i "s/mysql_user/$MYSQL_USER/g" $APACHE_ROOT/index.php
+sed -i "s/mysql_user/$MYSQL_USER/g" $APACHE_ROOT/submit.php
+sed -i "s/mysql_pass/$MYSQL_PASS/g" $APACHE_ROOT/index.php
+sed -i "s/mysql_pass/$MYSQL_PASS/g" $APACHE_ROOT/submit.php
+sed -i "s/database_name/$MYSQL_DB/g" $APACHE_ROOT/index.php
+sed -i "s/database_name/$MYSQL_DB/g" $APACHE_ROOT/submit.php
+cd .. && rm -r CuckooWeb
+
+cd $DIR
+exit 0
+=======
 ln -s $CUCKOO_ROOT/db/cuckoo.db $APACHE_ROOT/cuckoo.db
 cd .. && rm -r CuckooWeb
 
