@@ -2,7 +2,6 @@
 
 # Variables
 
-=======
 if [ $EUID -nq 0 ];then
 	echo YOU HAVE TO BE ROOT TO RUN THIS SCRIPT
 	exit 1;
@@ -21,7 +20,6 @@ MYSQL_USER=mysql_user
 MYSQL_PASS=mysql_pass
 MYSQL_DB=database_name
 
-=======
 DIR=$(pwd)
 
 # Dependencies
@@ -80,8 +78,6 @@ cd .. && rm -r CuckooWeb
 
 cd $DIR
 exit 0
-=======
-ln -s $CUCKOO_ROOT/db/cuckoo.db $APACHE_ROOT/cuckoo.db
 cd .. && rm -r CuckooWeb
 
 cd $DIR
