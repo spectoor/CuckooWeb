@@ -23,8 +23,7 @@ This installation has been tested on the version 0.6 of Cuckoo.
 
   OR
 
-  chmod +x install.sh
-  ./install.sh
+  chmod +x install.sh && ./install.sh
 
 
 All rights reserved.
