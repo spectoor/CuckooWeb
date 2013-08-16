@@ -9,16 +9,27 @@ fi
 
 # Variables
 
-echo -n Enter the path of cuckoo directory \(e.g. /root/cuckoo\):
+echo -n 'Enter the path of cuckoo directory (e.g. /root/cuckoo):'
 read CUCKOO_ROOT
 if [ ! -e $CUCKOO_ROOT/cuckoo.py ];then
 	echo $CUCKOO_ROOT is a wrong path
 	exit 2;
 fi
+
+echo -n 'Enter MySQL cuckoo username:'
+read MYSQL_USER
+echo -n 'Enter MySQL cuckoo password:'
+read MYSQL_PASS
+echo -n 'Enter MySQL cuckoo database:'
+read MYSQL_DB
+res=$(mysql -u $MYSQL_USER --password=$MYSQL_PASS $MYSQL_DB -e exit 2>&1)
+
+if [ -n "$res" ];then
+        echo Please check credentials
+        exit 2;
+fi
+
 APACHE_ROOT=/var/www/cuckoo_web
-MYSQL_USER=mysql_user
-MYSQL_PASS=mysql_pass
-MYSQL_DB=database_name
 
 DIR=$(pwd)
 
@@ -63,7 +74,7 @@ nano /etc/php5/apache2/php.ini
 git clone https://github.com/spectoor/CuckooWeb
 if [ $0 -nq 0 ];then
 	echo ERROR: Downloading CuckooWeb repo.
-	exit 4
+	exit 3
 fi
 cd CuckooWeb
 cp -R cuckoo_web $APACHE_ROOT
