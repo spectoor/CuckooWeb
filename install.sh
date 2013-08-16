@@ -2,7 +2,7 @@
 
 # Variables
 
-if [ $EUID -nq 0 ];then
+if [ "$(whoami)" != "root" ];then
 	echo YOU HAVE TO BE ROOT TO RUN THIS SCRIPT
 	exit 1;
 fi
@@ -37,7 +37,7 @@ DIR=$(pwd)
 
 apt-get update 1>/dev/null 2>&1
 apt-get -y install autoconf nano git wget automake libtool re2c flex bison \
-		   apache2 php5 php5-sqlite php5-dev 1>/dev/null 2>&1
+		   apache2 php5 php5-mysql php5-dev 1>/dev/null 2>&1
 
 # ssdeep php libraries
 
@@ -47,8 +47,8 @@ cd ssdeep-1.0.2
 phpize5 1>/dev/null 2>&1
 ./configure 1>/dev/null 2>&1
 make 1>/dev/null 2>&1
-make install 1>/dev/null 2>&1
-if [ $0 -nq 0 ];then
+res=$(make install 1>/dev/null 2>&1)
+if [ -n "$res" ];then
 	echo ERROR: Installing ssdeep libraries.
 	exit 3
 fi
@@ -59,10 +59,8 @@ echo
 echo FILE /etc/php5/apache2/php.ini
 echo Copy following lines at the section \"Dynamic extensions\"
 echo
-echo ;extension=pdo.so
-echo ;extension=pdo_sqlite.so
-echo ;extension=sqlite3.so
 echo extension=ssdeep.so
+echo extension=mysql.so
 echo
 echo Press ENTER to continue
 read
@@ -71,24 +69,21 @@ nano /etc/php5/apache2/php.ini
 
 /etc/init.d/apache2 restart 1>/dev/null 2>&1
 
-git clone https://github.com/spectoor/CuckooWeb
-if [ $0 -nq 0 ];then
+git clone https://github.com/spectoor/CuckooWeb 1>/dev/null 2>&1
+if [ ! -d CuckooWeb ];then
 	echo ERROR: Downloading CuckooWeb repo.
 	exit 3
 fi
 cd CuckooWeb
 cp -R cuckoo_web $APACHE_ROOT
-chown -R www-data $APACHE_ROOT
+ln -s $CUCKOO_ROOT/storage/analyses analyses
 sed -i "s/mysql_user/$MYSQL_USER/g" $APACHE_ROOT/index.php
 sed -i "s/mysql_user/$MYSQL_USER/g" $APACHE_ROOT/submit.php
 sed -i "s/mysql_pass/$MYSQL_PASS/g" $APACHE_ROOT/index.php
 sed -i "s/mysql_pass/$MYSQL_PASS/g" $APACHE_ROOT/submit.php
 sed -i "s/database_name/$MYSQL_DB/g" $APACHE_ROOT/index.php
 sed -i "s/database_name/$MYSQL_DB/g" $APACHE_ROOT/submit.php
-cd .. && rm -r CuckooWeb
-
-cd $DIR
-exit 0
+chown -R www-data $APACHE_ROOT
 cd .. && rm -r CuckooWeb
 
 cd $DIR
