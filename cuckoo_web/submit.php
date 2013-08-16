@@ -2,8 +2,11 @@
 
 	// Database parameters
 
-	$dbname='cuckoo.db';
-	$base=new SQLite3($dbname);
+	// E.G. USER : cuckoo PASS : cuckoo
+	$db = mysql_connect('localhost', 'mysql_user', 'mysql_pass');
+
+	// E.G. DB name : cuckoo
+	mysql_select_db('database_name',$db);
 
 	// Vars from the POST request
 
@@ -29,34 +32,37 @@
 	$ssdeep = ssdeep_fuzzy_hash_filename("$filename");
 
 	// Get a new sample id if not present in database
-
-	$query = "SELECT id FROM samples WHERE sha512='$sha512'";
-	$result = $base->query($query);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
+	
+	$sql = "SELECT id FROM samples WHERE sha512='$sha512';";
+	$req = mysql_query($sql) or die('Erreur SQL !<br>'.$sql.'<br>'.mysql_error());
+	$row = mysql_fetch_assoc($req));
+	
 	if( $row ) {
 		$sample_id = $row['id'];
 	}
 	else {
-		$sample_id = $base->querySingle("SELECT COUNT(*) as count FROM samples");
+		$req = mysql_query("SELECT * FROM samples;");
+		$sample_id = mysql_num_rows($req);
 		$sample_id+=1;
 	}
 
 	$query_list = "id, file_size, file_type, md5, crc32, sha1, sha256, sha512, ssdeep";
 	$args_list = "'$sample_id', '$file_size', '$file_type', '$md5', '$crc32', '$sha1', '$sha256', '$sha512', '$ssdeep'";
 
-	$query = "INSERT INTO samples($query_list) VALUES ($args_list)";
+	$sql = "INSERT INTO samples($query_list) VALUES ($args_list);";
 	//echo "$query<br>";
-	if($result = $base->exec($query)) {
-		echo 'REUSSI samples<br>';
+	if($req = mysql_query($sql) or die('Erreur SQL !<br>'.$sql.'<br>'.mysql_error());) {
+		echo 'OK adding samples<br>';
 	}
 	else {
-		echo 'ECHEC samples<br>';
+		echo 'FAIL adding samples<br>';
 	}
-
+	
 	// Fill out the tasks table
 
 	// Get new task id
-	$task_id = $base->querySingle("SELECT COUNT(*) as count FROM tasks");
+	$req = mysql_query("SELECT * FROM tasks;");
+	$task_id = mysql_num_rows($req);
 	$task_id+=1;
 	$category='file';
 	$custom='';
@@ -69,18 +75,18 @@
 	$query_list="id, target, category, timeout, priority, custom, machine, package, options, platform, memory, enforce_timeout, added_on, sample_id";
 	$args_list="'$task_id', '$filename', '$category', '$timeout', '$priority', '$custom', '$machine', '$package', '$options', '$platform', '$memory', '$enforce_timeout', '$added_on', '$sample_id'";
 
-	$query = "INSERT INTO tasks($query_list) VALUES ($args_list)";
-	//echo "$query<br>";
-	if($result = $base->exec($query)) {
-		echo 'REUSSI tasks<br>';
+	$sql = "INSERT INTO tasks($query_list) VALUES ($args_list);";
+	
+	if($req = mysql_query($sql) or die('Erreur SQL !<br>'.$sql.'<br>'.mysql_error());) {
+		echo 'OK adding tasks<br>';
 	}
 	else {
-		echo 'ECHEC tasks<br>';
+		echo 'FAIL adding tasks<br>';
 	}
 
 	// Database disconnection
 
-	$base->close();
+	mysql_close();
 
 	// Redirection
 
