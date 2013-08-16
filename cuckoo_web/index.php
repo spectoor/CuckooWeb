@@ -156,11 +156,18 @@
             </thead>
             <tbody>
             <?php
-					$dbname='cuckoo.db';
-            	$base=new SQLite3($dbname);
-            	$query='SELECT id, category, target, added_on, completed_on, status FROM tasks ORDER BY id DESC;';
-					$results=$base->query($query);
-					while ( $row=$results->fetchArray(SQLITE3_ASSOC) ) {
+				
+				// E.G. USER : cuckoo PASS : cuckoo
+				$db = mysql_connect('localhost', 'mysql_user', 'mysql_pass');
+
+				// E.G. DB name : cuckoo
+				mysql_select_db('database_name',$db);
+
+				// Display Query
+				$sql = 'SELECT id, category, target, added_on, completed_on, status FROM tasks ORDER BY id DESC;';
+				$req = mysql_query($sql) or die('Erreur SQL !<br>'.$sql.'<br>'.mysql_error());
+				
+					while($row = mysql_fetch_assoc($req)) {
 					?>
                 <tr>
                     <td>
@@ -200,7 +207,7 @@
                     </td>
                 </tr>
             <?php			}
-            	$base->close();
+            	mysql_close();
             ?>
             </tbody>
         </table>
