@@ -17,14 +17,8 @@ This installation has been tested on the version 0.6 of Cuckoo.
 
 [ Installation ]
 
-  As ROOT user
-
-  bash install.sh
-
-  OR
-
-  chmod +x install.sh && ./install.sh
-
+  wget https://raw.github.com/spectoor/CuckooWeb/master/install.sh
+  sudo bash install.sh
 
 All rights reserved.
 2013
